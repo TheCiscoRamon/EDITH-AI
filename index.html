@@ -1,1 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EDITH AI</title>
 
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    background: #030912;
+    color: #e5f5ff;
+    font-family: Arial, sans-serif;
+    min-height: 100vh;
+}
+
+header {
+    padding: 22px;
+    text-align: center;
+    border-bottom: 1px solid #123b59;
+    letter-spacing: 4px;
+}
+
+header h1 {
+    color: #36cfff;
+    font-size: 30px;
+    margin: 0;
+    text-shadow: 0 0 15px #00aaff;
+}
+
+header p {
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: #709bb5;
+}
+
+.status {
+    text-align: center;
+    margin-top: 25px;
+    color: #39e5ff;
+    font-size: 12px;
+    letter-spacing: 2px;
+}
+
+.reactor {
+    width: 190px;
+    height: 190px;
+    margin: 65px auto 25px;
+    border: 3px solid #00bfff;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 0 20px #008cff,
+                inset 0 0 25px #008cff;
+    animation: glow 2s infinite alternate;
+}
+
+.core {
+    width: 115px;
+    height: 115px;
+    border-radius: 50%;
+    background: radial-gradient(circle, #b9faff, #008cff, #001b45);
+    box-shadow: 0 0 35px #00cfff;
+}
+
+@keyframes glow {
+    from { box-shadow: 0 0 15px #008cff; }
+    to { box-shadow: 0 0 40px #00cfff; }
+}
+
+.name {
+    text-align: center;
+    font-size: 25px;
+    letter-spacing: 5px;
+    color: #42dfff;
+}
+
+.subtitle {
+    text-align: center;
+    color: #729bb5;
+    font-size: 11px;
+    margin-top: 8px;
+}
+
+.controls {
+    text-align: center;
+    margin: 30px 0;
+}
+
+button, select {
+    background: #071b30;
+    border: 1px solid #00aaff;
+    color: #bcefff;
+    padding: 14px 20px;
+    border-radius: 30px;
+    font-size: 14px;
+    margin: 5px;
+}
+
+button:active {
+    background: #075080;
+}
+
+.mic {
+    width: 75px;
+    height: 75px;
+    border-radius: 50%;
+    font-size: 27px;
+    background: #06365b;
+    box-shadow: 0 0 20px #008cff;
+}
+
+.chat {
+    margin: 25px 18px;
+    padding: 15px;
+    border: 1px solid #164d70;
+    border-radius: 15px;
+    min-height: 120px;
+    background: #071321;
+}
+
+.chat h3 {
+    color: #36cfff;
+    font-size: 13px;
+}
+
+#response {
+    font-size: 14px;
+    line-height: 1.6;
+    color: #c5eaff;
+}
+
+input {
+    width: 65%;
+    padding: 13px;
+    background: #071b30;
+    border: 1px solid #17608b;
+    border-radius: 20px;
+    color: white;
+    outline: none;
+}
+
+footer {
+    text-align: center;
+    padding: 20px;
+    color: #42657d;
+    font-size: 10px;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <h1>EDITH</h1>
+    <p>ENHANCED DIGITAL INTELLIGENCE</p>
+</header>
+
+<div class="status" id="status">
+    ● SYSTEM ONLINE
+</div>
+
+<div class="reactor">
+    <div class="core"></div>
+</div>
+
+<div class="name">EDITH</div>
+<div class="subtitle">YOUR PERSONAL AI ASSISTANT</div>
+
+<div class="controls">
+
+    <button class="mic" onclick="listen()">🎙️</button>
+
+    <br>
+
+    <select id="language">
+        <option value="en-IN">English</option>
+        <option value="hi-IN">Hindi</option>
+    </select>
+
+    <br>
+
+    <button onclick="speak('Hello! I am EDITH. How can I help you?')">
+        TEST VOICE
+    </button>
+
+</div>
+
+<div class="chat">
+    <h3>EDITH CONSOLE</h3>
+    <div id="response">
+        Hello! I am EDITH. Your personal assistant is ready.
+    </div>
+</div>
+
+<div class="controls">
+    <input id="message" placeholder="Talk to EDITH...">
+    <button onclick="sendMessage()">SEND</button>
+</div>
+
+<footer>
+    EDITH AI SYSTEM | VERSION 1.0
+</footer>
+
+<script>
+
+function speak(text) {
+    if (!('speechSynthesis' in window)) {
+        alert("Voice is not supported in this browser.");
+        return;
+    }
+
+    speechSynthesis.cancel();
+
+    let speech = new SpeechSynthesisUtterance(text);
+    speech.lang = document.getElementById("language").value;
+    speech.rate = 0.95;
+
+    let voices = speechSynthesis.getVoices();
+
+    let voice = voices.find(v =>
+        v.lang.toLowerCase().startsWith(
+            speech.lang.substring(0, 2).toLowerCase()
+        ) &&
+        /female|zira|samantha/i.test(v.name)
+    );
+
+    if (voice) speech.voice = voice;
+
+    speechSynthesis.speak(speech);
+}
+
+function listen() {
+
+    const Recognition =
+        window.SpeechRecognition ||
+        window.webkitSpeechRecognition;
+
+    if (!Recognition) {
+        alert("Please use Chrome for voice recognition.");
+        return;
+    }
+
+    let recognition = new Recognition();
+
+    recognition.lang =
+        document.getElementById("language").value;
+
+    recognition.onstart = function() {
+        document.getElementById("status").innerText =
+            "● LISTENING...";
+    };
+
+    recognition.onresult = function(event) {
+        let text = event.results[0][0].transcript;
+
+        document.getElementById("message").value = text;
+        sendMessage();
+    };
+
+    recognition.onerror = function() {
+        document.getElementById("status").innerText =
+            "● SYSTEM ONLINE";
+    };
+
+    recognition.onend = function() {
+        document.getElementById("status").innerText =
+            "● SYSTEM ONLINE";
+    };
+
+    recognition.start();
+}
+
+function sendMessage() {
+
+    let input = document.getElementById("message");
+    let text = input.value.trim();
+
+    if (!text) return;
+
+    document.getElementById("response").innerText =
+        "You: " + text +
+        "\n\nEDITH: I received your command. My AI brain will be connected in the next development stage.";
+
+    input.value = "";
+
+}
+
+</script>
+
+</body>
+</html>
